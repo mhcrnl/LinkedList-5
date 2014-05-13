@@ -79,4 +79,7 @@ void ll_clear(LinkedList *list, void *(cleanupFunc(void *)));
 * See ll_clear for cleanupFunc notes.
  */
 void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *));
+
+void ll_mapInline(LinkedList *list, void *mapParam, void *(mapFunc)(void *,void *));
+
 #endif

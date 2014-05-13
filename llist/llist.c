@@ -182,3 +182,12 @@ void * ll_pop(LinkedList *list) {
     }
     return retval;
 }
+
+void ll_mapInline(LinkedList *list, void *mapParam, void *(mapFunc)(void *,void *)) {
+    LinkedListEntry *entry;
+    if(list!=NULL && mapFunc!=NULL) {
+        for(entry=list->first;entry!=NULL;entry=entry->next) {
+            entry->data = mapFunc(entry->data,mapParam);
+        }
+    }
+}
