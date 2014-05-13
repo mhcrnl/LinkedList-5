@@ -24,14 +24,6 @@ LinkedList *ll_init() {
     return calloc(1,sizeof(LinkedList));
 }
 
-/*
- * Walks the list list until searchFunc returns 1. A reaturn of 1 from
- * searchFunc indicates the item desired has been found ,searchFunc
- * will be passed the LinkedListEntry.data member for evaluation as
- * the first argument and the searchParam argument as the second.
- * ll_search will return NULL if list is NULL, searchFunc is NULL,
- * or if the item cannot be located.
- */
 void *ll_search(LinkedList *list, void * searchParam, int (searchFunc)(void *, void *)) {
     LinkedListEntry *entry=NULL;
     
@@ -114,12 +106,7 @@ LinkedListEntry *ll_insert(LinkedListEntry *entry, int insertMode, void *data) {
     return newNode;
 }
 
-/*
- * cleanupFunc is optional; if supplied it will be called against the
- * LinkedListEntry.data member prior to entry deallocation. The return
- * value of cleanupFunc will be returned by ll_remove if cleanupFunc
- * is supplied otherwise the value in LinkedListEntry->data is returned.
- */
+
 void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
     void *retval = NULL;
     LinkedList *list;
@@ -150,11 +137,7 @@ void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
 }
 
 
-/*
- * cleanupFunc is optional; if supplied it will be called against the
- * LinkedListEntry.data member prior to entry deallocation. The return
- * value of cleanupFunc is ignored in this case.
- */
+
 void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *)) {
     LinkedListEntry *toDelete=NULL;
     LinkedListEntry *current;
