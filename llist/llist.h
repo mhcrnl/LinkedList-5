@@ -43,6 +43,8 @@ void *ll_search(LinkedList *list, void * searchParam, int (searchFunc)(void *,vo
 LinkedListEntry *ll_append(LinkedList *list,void *data);
 LinkedListEntry *ll_prepend(LinkedList *list,void *data);
 LinkedListEntry *ll_insert(LinkedListEntry *entry, int insertMode, void *data);
+LinkedListEntry *ll_insertBefore(LinkedListEntry *entry, void *data);
+LinkedListEntry *ll_insertAfter(LinkedListEntry *entry, void *data);
 
 /*
  * cleanupFunc is optional; if supplied it will be called against the

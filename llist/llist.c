@@ -37,75 +37,81 @@ void *ll_search(LinkedList *list, void * searchParam, int (searchFunc)(void *, v
 }
 
 LinkedListEntry *ll_append(LinkedList *list,void *data) {
-    LinkedListEntry *newNode=NULL;
-    if(list!=NULL) {
-        
-        newNode=ll_allocEntry(list, data);
-        if(newNode !=NULL){
-            newNode->previous=list->last;
-            if(list->first !=NULL){
-                list->last->next=newNode;
-            } else {
-                list->first = newNode;
-            }
-            list->last=newNode;
+    LinkedListEntry *retval=NULL;
+    if(list!=NULL){
+        if(list->first==NULL) {
+            list->first=list->last=ll_allocEntry(list, data);
             list->nodeCount++;
+        } else {
+            retval = ll_insert(list->last, LL_INSERT_AFTER, data);
         }
     }
-    return newNode;
+    return retval;
 }
 
 LinkedListEntry *ll_prepend(LinkedList *list,void *data) {
-    LinkedListEntry *newNode=NULL;
-    if(list!=NULL) {
-        
-        newNode = ll_allocEntry(list, data);
-        if(newNode !=NULL){
-            newNode->next=list->first;
-            if(list->first !=NULL) {
-                list->first->previous=newNode;
-            } else {
-                list->last=newNode;
-            }
-            
-            list->first=newNode;
+    LinkedListEntry *retval=NULL;
+    if(list!=NULL){
+        if(list->last==NULL) {
+            list->first=list->last=ll_allocEntry(list, data);
             list->nodeCount++;
+        } else {
+            retval = ll_insert(list->first, LL_INSERT_BEFORE, data);
         }
+    }
+    return retval;
+}
+
+LinkedListEntry *ll_insertBefore(LinkedListEntry *entry, void *data) {
+    LinkedListEntry *newNode=NULL;
+    LinkedList *list;
+    if(entry!=NULL) {
+        list=entry->owner;
+
+        newNode=ll_allocEntry(list, data);
+        if(entry==list->first) {
+            list->first=newNode;
+        }
+        else{
+            entry->previous->next=newNode;
+        }
+        
+        newNode->previous=entry->previous;
+        newNode->next=entry;
+        newNode->next->previous=newNode;
+        newNode->data=data;
+        list->nodeCount++;
     }
     return newNode;
 }
 
-
-
-LinkedListEntry *ll_insert(LinkedListEntry *entry, int insertMode, void *data) {
+LinkedListEntry *ll_insertAfter(LinkedListEntry *entry, void *data) {
     LinkedListEntry *newNode=NULL;
     LinkedList *list;
-    if(entry!=NULL){
+    
+    if(entry!=NULL) {
         list=entry->owner;
-        newNode = ll_allocEntry(list, data);
-        if(newNode!=NULL){
-            if(insertMode) {
-                newNode->next=entry;
-                newNode->previous=entry->previous;
-                entry->previous=newNode;
-                if(entry==list->first){
-                    list->first=newNode;
-                }
-            } else {
-                newNode->previous=entry;
-                newNode->next=entry->next;
-                entry->next=newNode;
-                if(entry==list->last) {
-                    list->last=entry;
-                }
-            }
-            list->nodeCount++;
+        newNode=ll_allocEntry(list, data);
+        
+        if(entry==list->last) {
+            list->last=newNode;
+        } else {
+            entry->next->previous=newNode;
         }
+        
+        newNode->next=entry->next;
+        newNode->previous=entry;
+        newNode->previous->next=newNode;
+        newNode->data=data;
+        list->nodeCount++;
     }
     
     return newNode;
 }
 
+LinkedListEntry *ll_insert(LinkedListEntry *entry, int insertMode, void *data) {
+    return insertMode == LL_INSERT_BEFORE?ll_insertBefore(entry, data) : ll_insertAfter(entry, data);
+}
 
 void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
     void *retval = NULL;
@@ -135,8 +141,6 @@ void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
     
     return retval;
 }
-
-
 
 void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *)) {
     if(list!=NULL) {
