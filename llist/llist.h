@@ -80,6 +80,13 @@ void ll_clear(LinkedList *list, void *(cleanupFunc(void *)));
  */
 void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *));
 
+/*
+ * Applies mapFunc to every element contained in list. The pointer
+ * LinkedListEntry.data will be assigned to the return value of mapFunc.
+ * The first argument to mapFunc will be LinkedListEntry.data and the
+ * second will be mapParam.
+ */
 void ll_mapInline(LinkedList *list, void *mapParam, void *(mapFunc)(void *,void *));
+
 
 #endif
