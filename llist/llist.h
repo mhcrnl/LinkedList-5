@@ -53,9 +53,28 @@ LinkedListEntry *ll_insert(LinkedListEntry *entry, int insertMode, void *data);
 void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *));
 
 /*
+ * Removes the item from the head of the list and returns the object
+ * pointed to by LinkedListEntry.data. Returns NULL on empty list.
+ */
+void * ll_poll(LinkedList *list);
+
+/*
+ * Removes item from the tail of the list and returns the object
+ * pointed to by LinkedListEntry.data. Returns NULL on empty list.
+ */
+void * ll_pop(LinkedList *list);
+
+/*
  * cleanupFunc is optional; if supplied it will be called against the
  * LinkedListEntry.data member prior to entry deallocation. The return
  * value of cleanupFunc is ignored in this case.
+ */
+void ll_clear(LinkedList *list, void *(cleanupFunc(void *)));
+
+/*
+ * Calls ll_clear and then frees the list. 
+ *
+* See ll_clear for cleanupFunc notes.
  */
 void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *));
 #endif

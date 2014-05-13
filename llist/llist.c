@@ -139,6 +139,13 @@ void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
 
 
 void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *)) {
+    if(list!=NULL) {
+        ll_clear(list,cleanupFunc);
+        free(list);
+    }
+}
+
+void ll_clear(LinkedList *list, void *(cleanupFunc)(void *)) {
     LinkedListEntry *toDelete=NULL;
     LinkedListEntry *current;
     if(list!=NULL){
@@ -151,6 +158,23 @@ void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *)) {
             }
             free(toDelete);
         }
-        free(list);
+        list->first=list->last=NULL;
+        list->nodeCount=0;
     }
+}
+
+void * ll_poll(LinkedList *list) {
+    void *retval=NULL;
+    if(list!=NULL && list->first!=NULL) {
+        retval = ll_remove(list->first,NULL);
+    }
+    return retval;
+}
+
+void * ll_pop(LinkedList *list) {
+    void *retval=NULL;
+    if(list!=NULL && list->last!=NULL) {
+        retval = ll_remove(list->last,NULL);
+    }
+    return retval;
 }
