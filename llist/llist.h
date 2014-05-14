@@ -98,4 +98,38 @@ void ll_mapInline(LinkedList *list, void *mapParam, void *(mapFunc)(void *,void 
  */
 void ll_filterInline(LinkedList *list, void *filterParam, int (filterFunc)(void *, void *));
 
+/*
+ * Equivalent to ll_copyAdvanced(list,NULL,NULL,NULL,NULL). Chances
+ * are that unless you are actually storing primatives in .data
+ * rather than a malloc'd pointer you probably don't want this.
+ */
+LinkedList *ll_copy(LinkedList *list);
+
+/*
+ * Copy advanced allows for filtered and/or data-specific deep copies.
+ *
+ * If filterFunc is supplied only items for which it returns 0 will
+ * be included in the new list (returning 1 indicates that the item
+ * should be filtered). The first parameter passed to filterFunc 
+ * will be the LinkedListEntry.data of the entry being evaluated; 
+ * the second parameter will be filterParam.
+ *
+ * deepCopyFunc, if supplied, allows for custom behavior for
+ * copying LinkedListData.data. The return value of deepCopyFunc
+ * will be assigned to the element in the new list. The first
+ * parameter passed to deepCopyFunc will be the 
+ * LinkedListEntry.data element to be copied and the second will
+ * be deepCopyFuncParam. If deepCopyFunc is not supplied the
+ * LinkedListEntry.data pointer will simply be copied to the new
+ * list.
+ *
+ * Please note that the filter is applied to the original list's
+ * data not on the data that deepCopyFunc produces.
+ */
+LinkedList * ll_copyAdvanced(LinkedList *list,
+                     void *filterParam,
+                     int(filterFunc)(void *, void *),
+                     void *deepCopyFuncParam,
+                     void *(deepCopyFunc)(void *, void *));
+
 #endif

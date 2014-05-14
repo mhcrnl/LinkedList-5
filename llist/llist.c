@@ -40,7 +40,7 @@ LinkedListEntry *ll_append(LinkedList *list,void *data) {
     LinkedListEntry *retval=NULL;
     if(list!=NULL){
         if(list->first==NULL) {
-            list->first=list->last=ll_allocEntry(list, data);
+            retval=list->first=list->last=ll_allocEntry(list, data);
             list->nodeCount++;
         } else {
             retval = ll_insert(list->last, LL_INSERT_AFTER, data);
@@ -53,7 +53,7 @@ LinkedListEntry *ll_prepend(LinkedList *list,void *data) {
     LinkedListEntry *retval=NULL;
     if(list!=NULL){
         if(list->last==NULL) {
-            list->first=list->last=ll_allocEntry(list, data);
+            retval=list->first=list->last=ll_allocEntry(list, data);
             list->nodeCount++;
         } else {
             retval = ll_insert(list->first, LL_INSERT_BEFORE, data);
@@ -204,4 +204,34 @@ void ll_filterInline(LinkedList *list, void *filterParam, int (filterFunc)(void 
             }
         }
     }
+}
+
+LinkedList *ll_copy(LinkedList *list) {
+    return ll_copyAdvanced(list, NULL, NULL, NULL, NULL);
+}
+
+void *defaultDeepCopyFunc(void *data,void *param) {
+    return data;
+}
+
+LinkedList * ll_copyAdvanced(LinkedList *list,
+                             void *filterParam,
+                             int(filterFunc)(void *, void *),
+                             void *deepCopyFuncParam,
+                             void *(deepCopyFunc)(void *, void *)) {
+    LinkedList *retval = NULL;
+    LinkedListEntry *entry;
+    if(list!=NULL) {
+        if(deepCopyFunc==NULL) {
+            deepCopyFunc=defaultDeepCopyFunc;
+        }
+        retval=ll_init();
+        for(entry=list->first;entry!=NULL;entry=entry->next) {
+            if(filterFunc==NULL || !filterFunc(entry->data,filterParam)) {
+                ll_append(retval,deepCopyFunc(entry->data,deepCopyFuncParam));
+            }
+        }
+    }
+    
+    return retval;
 }
