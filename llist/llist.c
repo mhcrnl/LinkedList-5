@@ -7,16 +7,65 @@
 //
 #include <stdlib.h>
 #include <stddef.h>
+#include <memory.h>
 #include "llist.h"
 
 
-static LinkedListEntry * ll_allocEntry(LinkedList *owner,void *data) {
-    LinkedListEntry *newNode;
-    if(owner!=NULL) {
-        newNode= calloc(1,sizeof(*newNode));
-        newNode->owner=owner;
-        newNode->data=data;
+
+int ll_link(LinkedList *list, LinkedListEntry *newentry, LinkedListEntry *previousEntry, LinkedListEntry *nextEntry) {
+    int retval=LL_SUCCESS;
+    if(newentry == NULL) {
+        retval = LL_ERR_BAD_ENTRY;
     }
+    else if(previousEntry!=NULL && previousEntry->owner!=list) {
+        retval = LL_ERR_DIFFERENT_LISTS;
+    }
+    else if(nextEntry!=NULL && nextEntry->owner!=list){
+        retval = LL_ERR_DIFFERENT_LISTS;
+    }
+    else if(newentry->owner!=NULL){
+        retval = LL_ERR_ENTRY_ALREADY_OWNED;
+    }
+    else {
+        
+        newentry->previous=previousEntry;
+        newentry->next=nextEntry;
+        
+        newentry->owner=list;
+        
+        if(previousEntry!=NULL) {
+            previousEntry->next=newentry;
+        }
+        
+        if(nextEntry!=NULL) {
+            nextEntry->previous=newentry;
+        }
+        
+        list->nodeCount++;
+    }
+    return retval;
+}
+
+int ll_unlink(LinkedListEntry *entryToUnlink) {
+    int retval=LL_SUCCESS;
+    entryToUnlink->owner=NULL;
+    if(entryToUnlink->previous !=NULL) {
+        entryToUnlink->previous->next=entryToUnlink->next;
+    }
+    
+    if(entryToUnlink->next!=NULL) {
+        entryToUnlink->next->previous=entryToUnlink->previous;
+    }
+    
+    entryToUnlink->next=entryToUnlink->previous=NULL;
+    return retval;
+}
+
+static LinkedListEntry * ll_allocEntry(void *data) {
+    LinkedListEntry *newNode;
+
+    newNode= calloc(1,sizeof(*newNode));
+    newNode->data=data;
     return newNode;
 }
 
@@ -48,7 +97,8 @@ LinkedListEntry *ll_append(LinkedList *list,void *data) {
     LinkedListEntry *retval=NULL;
     if(list!=NULL){
         if(list->first==NULL) {
-            retval=list->first=list->last=ll_allocEntry(list, data);
+            retval=list->first=list->last=ll_allocEntry(data);
+            retval->owner=list;
             list->nodeCount++;
         } else {
             retval = ll_insert(list->last, LL_INSERT_AFTER, data);
@@ -61,7 +111,8 @@ LinkedListEntry *ll_prepend(LinkedList *list,void *data) {
     LinkedListEntry *retval=NULL;
     if(list!=NULL){
         if(list->last==NULL) {
-            retval=list->first=list->last=ll_allocEntry(list, data);
+            retval=list->first=list->last=ll_allocEntry(data);
+            retval->owner=list;
             list->nodeCount++;
         } else {
             retval = ll_insert(list->first, LL_INSERT_BEFORE, data);
@@ -72,46 +123,29 @@ LinkedListEntry *ll_prepend(LinkedList *list,void *data) {
 
 LinkedListEntry *ll_insertBefore(LinkedListEntry *entry, void *data) {
     LinkedListEntry *newNode=NULL;
-    LinkedList *list;
     if(entry!=NULL) {
-        list=entry->owner;
-
-        newNode=ll_allocEntry(list, data);
-        if(entry==list->first) {
-            list->first=newNode;
-        }
-        else{
-            entry->previous->next=newNode;
+        newNode=ll_allocEntry(data);
+        if(entry==entry->owner->first) {
+            entry->owner->first=newNode;
         }
         
-        newNode->previous=entry->previous;
-        newNode->next=entry;
-        newNode->next->previous=newNode;
-        newNode->data=data;
-        list->nodeCount++;
+        ll_link(entry->owner,newNode, entry->previous, entry);
     }
     return newNode;
 }
 
 LinkedListEntry *ll_insertAfter(LinkedListEntry *entry, void *data) {
     LinkedListEntry *newNode=NULL;
-    LinkedList *list;
+    
     
     if(entry!=NULL) {
-        list=entry->owner;
-        newNode=ll_allocEntry(list, data);
+        newNode=ll_allocEntry(data);
         
-        if(entry==list->last) {
-            list->last=newNode;
-        } else {
-            entry->next->previous=newNode;
+        if(entry==entry->owner->last) {
+            entry->owner->last=newNode;
         }
         
-        newNode->next=entry->next;
-        newNode->previous=entry;
-        newNode->previous->next=newNode;
-        newNode->data=data;
-        list->nodeCount++;
+        ll_link(entry->owner,newNode,entry,entry->next);
     }
     
     return newNode;
@@ -123,28 +157,18 @@ LinkedListEntry *ll_insert(LinkedListEntry *entry, int insertMode, void *data) {
 
 void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
     void *retval = NULL;
-    LinkedList *list;
     if(entry!=NULL) {
-        list=entry->owner;
-        if(entry==list->first){
-            list->first=entry->next;
-        } else {
-            entry->previous->next=entry->next;
+        retval=entry->data;
+        if(entry==entry->owner->first) {
+            entry->owner->first=entry->next;
         }
         
-        if(entry==list->last) {
-            list->last=entry->previous;
-        } else {
-            entry->next->previous=entry->previous;
-        }
-        retval = entry->data;
-        
-        if(cleanupFunc!=NULL) {
-            retval = cleanupFunc(retval);
+        if(entry==entry->owner->last) {
+            entry->owner->last=entry->previous;
         }
         
+        ll_unlink(entry);
         ll_releaseEntry(entry);
-        list->nodeCount--;
     }
     
     return retval;

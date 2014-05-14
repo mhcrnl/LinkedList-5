@@ -12,6 +12,11 @@
 #define LL_INSERT_AFTER 0
 #define LL_INSERT_BEFORE 1
 
+#define LL_SUCCESS 0
+#define LL_ERR_DIFFERENT_LISTS 1
+#define LL_ERR_ENTRY_ALREADY_OWNED 2
+#define LL_ERR_BAD_ENTRY 3
+
 typedef struct LinkedListEntry LinkedListEntry;
 typedef struct LinkedList LinkedList;
 
