@@ -28,7 +28,14 @@ struct LinkedList {
     long nodeCount;
 };
 
-LinkedList *ll_init();
+LinkedList *ll_create();
+
+/*
+ * Calls ll_clear and then frees the list.
+ *
+ * See ll_clear for cleanupFunc notes.
+ */
+void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *));
 
 /*
  * Walks the list until searchFunc returns 1. A reaturn of 1 from
@@ -87,13 +94,6 @@ void * ll_pop(LinkedList *list);
  * value of cleanupFunc is ignored in this case.
  */
 void ll_clear(LinkedList *list, void *(cleanupFunc(void *)));
-
-/*
- * Calls ll_clear and then frees the list. 
- *
-* See ll_clear for cleanupFunc notes.
- */
-void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *));
 
 /*
  * Applies mapFunc to every element contained in list. The pointer

@@ -28,7 +28,7 @@ static void ll_releaseList(LinkedList *list) {
     free(list);
 }
 
-LinkedList *ll_init() {
+LinkedList *ll_create() {
     return calloc(1,sizeof(LinkedList));
 }
 
@@ -233,7 +233,7 @@ LinkedList * ll_copyAdvanced(LinkedList *list,
         if(deepCopyFunc==NULL) {
             deepCopyFunc=defaultDeepCopyFunc;
         }
-        retval=ll_init();
+        retval=ll_create();
         for(entry=list->first;entry!=NULL;entry=entry->next) {
             if(filterFunc==NULL || !filterFunc(entry->data,filterParam)) {
                 ll_append(retval,deepCopyFunc(entry->data,deepCopyFuncParam));
@@ -250,7 +250,7 @@ LinkedList *ll_searchFindAll(LinkedList *list, void * searchParam, int (searchFu
 
     int sfRes=0;
     if(list!=NULL && searchFunc!=NULL) {
-        retval = ll_init();
+        retval = ll_create();
         for(entry=list->first;entry!=NULL && sfRes!=-1;entry=entry->next) {
             if((sfRes=searchFunc(entry->data,searchParam))) {
                 ll_append(retval, entry);
