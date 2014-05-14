@@ -88,5 +88,14 @@ void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *));
  */
 void ll_mapInline(LinkedList *list, void *mapParam, void *(mapFunc)(void *,void *));
 
+/*
+ * Applies filterFunc to every element in list. If filterFunc returns 1
+ * the element will be removed. If cleanup on the data contained in the
+ * list entry (LinkedListEntry.data) filterFunc must perform the 
+ * cleanup operation before it returns. The first argument to 
+ * filterFunc will be the pointer LinkedListEntry.data and the second
+ * will be filterParam.
+ */
+void ll_filterInline(LinkedList *list, void *filterParam, int (filterFunc)(void *, void *));
 
 #endif

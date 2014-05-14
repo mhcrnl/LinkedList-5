@@ -191,3 +191,17 @@ void ll_mapInline(LinkedList *list, void *mapParam, void *(mapFunc)(void *,void 
         }
     }
 }
+
+void ll_filterInline(LinkedList *list, void *filterParam, int (filterFunc)(void *, void *)) {
+    LinkedListEntry tempEntry;
+    LinkedListEntry *entry;
+    if(list !=NULL && filterFunc!=NULL) {
+        for(entry=list->first;entry!=NULL;entry=entry->next) {
+            if(filterFunc(entry->data,filterParam)) {
+                tempEntry.next=entry->next;
+                ll_remove(entry,NULL);
+                entry=&tempEntry;
+            }
+        }
+    }
+}
