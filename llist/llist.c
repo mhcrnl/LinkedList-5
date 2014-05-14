@@ -24,16 +24,16 @@ LinkedList *ll_init() {
     return calloc(1,sizeof(LinkedList));
 }
 
-void *ll_search(LinkedList *list, void * searchParam, int (searchFunc)(void *, void *)) {
+LinkedListEntry * ll_search(LinkedList *list, void * searchParam, int (searchFunc)(void *, void *)) {
     LinkedListEntry *entry=NULL;
     
     if(list!=NULL && searchFunc!=NULL){
         for(entry=list->first;
-            entry!=NULL && searchFunc(entry->data, searchParam)!=1;
+            entry!=NULL && !searchFunc(entry->data, searchParam);
             entry=entry->next);
     }
     
-    return (entry == NULL)?NULL:entry->data;
+    return entry;
 }
 
 LinkedListEntry *ll_append(LinkedList *list,void *data) {
@@ -229,6 +229,23 @@ LinkedList * ll_copyAdvanced(LinkedList *list,
         for(entry=list->first;entry!=NULL;entry=entry->next) {
             if(filterFunc==NULL || !filterFunc(entry->data,filterParam)) {
                 ll_append(retval,deepCopyFunc(entry->data,deepCopyFuncParam));
+            }
+        }
+    }
+    
+    return retval;
+}
+
+LinkedList *ll_searchFindAll(LinkedList *list, void * searchParam, int (searchFunc)(void *,void *)) {
+    LinkedList *retval=NULL;
+    LinkedListEntry *entry;
+
+    int sfRes=0;
+    if(list!=NULL && searchFunc!=NULL) {
+        retval = ll_init();
+        for(entry=list->first;entry!=NULL && sfRes!=-1;entry=entry->next) {
+            if((sfRes=searchFunc(entry->data,searchParam))) {
+                ll_append(retval, entry);
             }
         }
     }

@@ -31,14 +31,29 @@ struct LinkedList {
 LinkedList *ll_init();
 
 /*
- * Walks the list list until searchFunc returns 1. A reaturn of 1 from
+ * Walks the list until searchFunc returns 1. A reaturn of 1 from
  * searchFunc indicates the item desired has been found ,searchFunc
  * will be passed the LinkedListEntry.data member for evaluation as
  * the first argument and the searchParam argument as the second.
  * ll_search will return NULL if list is NULL, searchFunc is NULL,
- * or if the item cannot be located.
+ * or if the item cannot be located. If the item is located, the
+ * entry containing the item is returned.
  */
-void *ll_search(LinkedList *list, void * searchParam, int (searchFunc)(void *,void *));
+LinkedListEntry *ll_search(LinkedList *list, void * searchParam, int (searchFunc)(void *,void *));
+
+/*
+ * Will iterate over the entire list applying searchFunc to each
+ * element. If searchFunc returns 1 the element is added to the
+ * returned list, 0 it will not. If searchFunc returns -1 the
+ * element will be considered a match but the search will be
+ * subsequently halted and the result list returned.
+ * 
+ * The LinkedListEntry.data pointer will contain pointers to 
+ * each matching LinkedListEntry in the original list. When the 
+ * returned list is destroyed ll_destroy should be called with a 
+ * NULL cleanupFunc.
+ */
+LinkedList *ll_searchFindAll(LinkedList *list, void * searchParam, int (searchFunc)(void *,void *));
 
 LinkedListEntry *ll_append(LinkedList *list,void *data);
 LinkedListEntry *ll_prepend(LinkedList *list,void *data);
