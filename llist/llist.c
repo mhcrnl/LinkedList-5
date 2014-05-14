@@ -20,6 +20,14 @@ static LinkedListEntry * ll_allocEntry(LinkedList *owner,void *data) {
     return newNode;
 }
 
+static void ll_releaseEntry(LinkedListEntry *entry) {
+    free(entry);
+}
+
+static void ll_releaseList(LinkedList *list) {
+    free(list);
+}
+
 LinkedList *ll_init() {
     return calloc(1,sizeof(LinkedList));
 }
@@ -135,7 +143,7 @@ void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
             retval = cleanupFunc(retval);
         }
         
-        free(entry);
+        ll_releaseEntry(entry);
         list->nodeCount--;
     }
     
@@ -145,7 +153,7 @@ void * ll_remove(LinkedListEntry *entry, void *(cleanupFunc)(void *)) {
 void ll_destroy(LinkedList *list, void *(cleanupFunc)(void *)) {
     if(list!=NULL) {
         ll_clear(list,cleanupFunc);
-        free(list);
+        ll_releaseList(list);
     }
 }
 
@@ -160,7 +168,7 @@ void ll_clear(LinkedList *list, void *(cleanupFunc)(void *)) {
             if(cleanupFunc!=NULL) {
                 cleanupFunc(toDelete->data);
             }
-            free(toDelete);
+            ll_releaseEntry(toDelete);
         }
         list->first=list->last=NULL;
         list->nodeCount=0;
